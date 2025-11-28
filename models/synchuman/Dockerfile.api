@@ -1,0 +1,40 @@
+FROM pytorch/pytorch:2.1.1-cuda12.1-cudnn8-devel
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git ffmpeg libgl1 libglib2.0-0 libssl-dev pkg-config python3-dev unzip build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python env
+RUN python -m pip install --upgrade pip setuptools wheel packaging ninja psutil "numpy<2"
+RUN python -m pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
+RUN python -m pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
+RUN python -m pip install xformers==0.0.23
+RUN python -m pip install accelerate safetensors==0.4.5 diffusers==0.29.1 transformers==4.36.0 \
+    huggingface_hub spconv-cu120 rembg onnxruntime imageio[ffmpeg] opencv-python \
+    git+https://github.com/EasternJournalist/utils3d@9a4eb15e
+RUN python -m pip install -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/whl/kaolin-0.17.0.html kaolin==0.17.0
+
+WORKDIR /workspace
+# Clone SyncHuman and submodules
+RUN git clone --depth 1 https://github.com/IGL-HKUST/SyncHuman.git /workspace/SyncHuman
+WORKDIR /workspace/SyncHuman
+RUN git submodule update --init --recursive
+RUN python -m pip install --no-build-isolation ./GaussianRenderer/diff-gaussian-rasterization
+
+# Copy API server from local build context
+COPY api_server.py /workspace/SyncHuman/api_server.py
+
+# Download weights (expects HF_TOKEN at build time)
+ARG HF_TOKEN
+ENV HF_TOKEN=${HF_TOKEN}
+RUN python download.py
+
+ENV PYTHONPATH=/workspace/SyncHuman
+ENV ATTN_BACKEND=flash_attn
+ENV SPARSE_ATTN_BACKEND=flash_attn
+EXPOSE 8000
+ENTRYPOINT ["python", "api_server.py"]
