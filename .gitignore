@@ -1,0 +1,15 @@
+# Ignore local keys, caches, and heavy/generated artifacts
+infra/
+*.log
+.DS_Store
+__pycache__/
+venv/
+
+# Model artifacts / outputs
+models/synchuman/outputs/
+models/synchuman/ckpts/
+*.glb
+*.npz
+*.pt
+*.pth
+*.safetensors
