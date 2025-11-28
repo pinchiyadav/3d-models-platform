@@ -25,6 +25,9 @@ WORKDIR /workspace
 RUN git clone --depth 1 https://github.com/IGL-HKUST/SyncHuman.git /workspace/SyncHuman
 WORKDIR /workspace/SyncHuman
 RUN git submodule update --init --recursive
+# Ensure Gaussian rasterizer source is present even if submodule metadata is shallow
+RUN test -d GaussianRenderer/diff-gaussian-rasterization || \
+    git clone --depth 1 https://github.com/graphdeco-inria/diff-gaussian-rasterization.git GaussianRenderer/diff-gaussian-rasterization
 RUN python -m pip install --no-build-isolation ./GaussianRenderer/diff-gaussian-rasterization
 
 # Copy API server from local build context
