@@ -91,6 +91,11 @@ pip install git+https://github.com/NVlabs/nvdiffrast.git@v0.3.1 --no-build-isola
 pip install git+https://github.com/EasternJournalist/utils3d@9a4eb15e
 pip install --no-build-isolation --no-cache-dir git+https://github.com/NVIDIAGameWorks/kaolin.git@v0.17.0
 git submodule update --init --recursive
+# Ensure rasterizer source is present
+if [[ ! -d "./GaussianRenderer/diff-gaussian-rasterization" ]]; then
+  mkdir -p ./GaussianRenderer
+  git clone --depth 1 https://github.com/graphdeco-inria/diff-gaussian-rasterization.git ./GaussianRenderer/diff-gaussian-rasterization
+fi
 pip install --no-build-isolation ./GaussianRenderer/diff-gaussian-rasterization
 
 echo "[5/7] Install SyncHuman editable..."
