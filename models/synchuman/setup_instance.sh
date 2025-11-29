@@ -86,7 +86,8 @@ pip install \
   pyvista \
   pymeshfix \
   python-igraph \
-  open3d==0.17.0
+  open3d==0.17.0 \
+  fastapi uvicorn python-multipart
 pip install git+https://github.com/NVlabs/nvdiffrast.git@v0.3.1 --no-build-isolation
 pip install git+https://github.com/EasternJournalist/utils3d@9a4eb15e
 pip install --no-build-isolation --no-cache-dir git+https://github.com/NVIDIAGameWorks/kaolin.git@v0.17.0
@@ -125,15 +126,25 @@ if [[ "$NEED_DL" -eq 0 ]]; then
   echo "[6/7] ckpts present; skipping download."
 else
   echo "[6/7] Removing partial ckpts (fresh download)..."
-  rm -rf ./ckpts
+  rm -rf ./ckpts ./tmp
   echo "[6/7] Missing ckpts; downloading..."
-  rm -rf ./tmp
   export HF_HUB_ENABLE_HF_TRANSFER=1
   pip install -q hf_transfer || true
-  # retry/resume up to 5 times
-  for i in 1 2 3 4 5; do
-    HF_TOKEN="$HF_TOKEN" python download.py && break
-    echo "Download attempt $i failed; retrying in 5s..." >&2
+  # retry/resume up to 8 times until required files exist
+  for i in 1 2 3 4 5 6 7 8; do
+    HF_TOKEN="$HF_TOKEN" python download.py || true
+    HAVE_ALL=1
+    for f in "${REQUIRED_FILES[@]}"; do
+      if [[ ! -f "$f" ]]; then
+        HAVE_ALL=0
+        break
+      fi
+    done
+    if [[ "$HAVE_ALL" -eq 1 ]]; then
+      echo "[6/7] ckpts download complete."
+      break
+    fi
+    echo "Download attempt $i incomplete; retrying in 5s..." >&2
     rm -rf ./tmp
     sleep 5
   done
