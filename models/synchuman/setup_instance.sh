@@ -137,7 +137,7 @@ else
   
   echo "Starting robust downloader..."
   # Use timeout to prevent the script from hanging indefinitely. 2 hours.
-  if ! timeout 7200 HF_TOKEN="$HF_TOKEN" python "$ROBUST_DOWNLOADER_PATH"; then
+  if ! timeout 7200 env HF_TOKEN="$HF_TOKEN" python "$ROBUST_DOWNLOADER_PATH"; then
     echo "Download script failed or timed out. Checking for completeness..."
   fi
 
