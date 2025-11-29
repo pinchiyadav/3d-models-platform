@@ -129,30 +129,32 @@ done
 if [[ "$NEED_DL" -eq 0 ]]; then
   echo "[6/7] ckpts present; skipping download."
 else
-  echo "[6/7] Removing partial ckpts (fresh download)..."
-  rm -rf ./ckpts ./tmp
   echo "[6/7] Missing ckpts; downloading..."
   export HF_HUB_ENABLE_HF_TRANSFER=1
   pip install -q hf_transfer || true
-  # retry/resume up to 8 times until required files exist
-  for i in 1 2 3 4 5 6 7 8; do
-    rm -rf ./ckpts
-    HF_TOKEN="$HF_TOKEN" python download.py || true
-    HAVE_ALL=1
-    for f in "${REQUIRED_FILES[@]}"; do
-      if [[ ! -f "$f" ]]; then
-        HAVE_ALL=0
-        break
-      fi
-    done
-    if [[ "$HAVE_ALL" -eq 1 ]]; then
-      echo "[6/7] ckpts download complete."
-      break
+
+  ROBUST_DOWNLOADER_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/robust_downloader.py"
+  
+  echo "Starting robust downloader..."
+  # Use timeout to prevent the script from hanging indefinitely. 2 hours.
+  if ! timeout 7200 HF_TOKEN="$HF_TOKEN" python "$ROBUST_DOWNLOADER_PATH"; then
+    echo "Download script failed or timed out. Checking for completeness..."
+  fi
+
+  # Final check for required files
+  HAVE_ALL=1
+  for f in "${REQUIRED_FILES[@]}"; do
+    if [[ ! -f "$f" ]]; then
+      HAVE_ALL=0
+      echo "ERROR: Missing required file after download: $f" >&2
     fi
-    echo "Download attempt $i incomplete; retrying in 5s..." >&2
-    rm -rf ./tmp ./ckpts
-    sleep 5
   done
+  if [[ "$HAVE_ALL" -eq 1 ]]; then
+    echo "[6/7] ckpts download complete."
+  else
+    echo "ERROR: Download failed, some required files are missing." >&2
+    exit 1
+  fi
 fi
 
 echo "[7/7] Ready. Run API with:"
