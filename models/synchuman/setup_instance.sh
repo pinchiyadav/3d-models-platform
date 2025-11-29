@@ -101,7 +101,13 @@ pip install --no-build-isolation ./GaussianRenderer/diff-gaussian-rasterization
 echo "[5/7] Skipping editable install (no setup.py/pyproject); using PYTHONPATH at runtime..."
 
 echo "[6/7] Downloading weights..."
-HF_TOKEN="$HF_TOKEN" python download.py
+# Prefer hf_transfer for faster, resumable downloads; retry a few times
+export HF_HUB_ENABLE_HF_TRANSFER=1
+for i in 1 2 3; do
+  HF_TOKEN="$HF_TOKEN" python download.py && break
+  echo "Download attempt $i failed; retrying..." >&2
+  sleep 5
+done
 
 echo "[7/7] Ready. Run API with:"
 echo "  source venv/bin/activate"
