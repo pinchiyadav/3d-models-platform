@@ -48,4 +48,5 @@ API option
   ```
   - If you prefer venv: `USE_MAMBA=false PYTHON=python3.10 ... bootstrap.sh`
   - API log: `/workspace/sync_api.log`; env exports handled inside bootstrap (flash-attn).
+- Weights download uses hf_transfer with retries and required-file checks; remove partial `ckpts/` if needed and rerun `download.py`.
 - One-command container: `docker build -t synchuman-api -f models/synchuman/Dockerfile models/synchuman && docker run --gpus all -p 8000:8000 synchuman-api`. Image includes weights and starts uvicorn on port 8000.

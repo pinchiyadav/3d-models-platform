@@ -65,7 +65,11 @@ echo "[3/7] Installing core torch stack (cu121)..."
 pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 \
   --index-url https://download.pytorch.org/whl/cu121 \
   --retries 15 --timeout 3
-pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
+# Try prebuilt flash-attn wheel matching torch 2.1.1/cu121; fallback to source
+FLASH_WHEEL="https://github.com/Dao-AILab/flash-attention/releases/download/v2.5.8/flash_attn-2.5.8+cu121torch2.1cxx11abiFALSE-cp310-cp310-linux_x86_64.whl"
+if ! pip install --no-cache-dir "$FLASH_WHEEL"; then
+  pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
+fi
 pip install xformers==0.0.23
 
 echo "[4/7] Installing SyncHuman + TRELLIS deps..."
@@ -151,6 +155,9 @@ else
 fi
 
 echo "[7/7] Ready. Run API with:"
+echo "  # if micromamba was used (default):"
+echo "  eval \\\"\\\$(/workspace/micromamba/bin/micromamba shell hook -s bash)\\\" && micromamba activate synchuman"
+echo "  # else venv:"
 echo "  source venv/bin/activate"
 echo "  export PYTHONPATH=${SYNC_ROOT}"
 echo "  export ATTN_BACKEND=flash_attn SPARSE_ATTN_BACKEND=flash_attn"
