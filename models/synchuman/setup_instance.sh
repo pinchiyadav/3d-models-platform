@@ -28,6 +28,7 @@ USE_MAMBA="${USE_MAMBA:-true}"
 if [[ "${USE_MAMBA}" == "true" ]]; then
   echo "[2/7] Installing micromamba env (py3.10)..."
   MICROMAMBA_ROOT="${MICROMAMBA_ROOT:-/workspace/micromamba}"
+  export MAMBA_ROOT_PREFIX="${MICROMAMBA_ROOT}"
   if [[ ! -x "${MICROMAMBA_ROOT}/bin/micromamba" ]]; then
     mkdir -p "${MICROMAMBA_ROOT}/bin"
     TMP_MAMBA="$(mktemp -d)"
