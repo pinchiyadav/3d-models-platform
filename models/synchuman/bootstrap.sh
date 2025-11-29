@@ -24,6 +24,9 @@ if [[ -d "/workspace/micromamba" ]]; then
 else
   source venv/bin/activate
 fi
+if [[ ! -f "$SYNC_ROOT/api_server.py" ]]; then
+  cp "$SCRIPT_DIR/api_server.py" "$SYNC_ROOT/api_server.py"
+fi
 export PYTHONPATH="$SYNC_ROOT"
 export ATTN_BACKEND=flash_attn SPARSE_ATTN_BACKEND=flash_attn
 nohup python api_server.py > /workspace/sync_api.log 2>&1 &
