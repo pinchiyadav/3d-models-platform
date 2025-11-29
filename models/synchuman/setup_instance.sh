@@ -98,8 +98,7 @@ if [[ ! -d "./GaussianRenderer/diff-gaussian-rasterization" ]]; then
 fi
 pip install --no-build-isolation ./GaussianRenderer/diff-gaussian-rasterization
 
-echo "[5/7] Install SyncHuman editable..."
-pip install -e .
+echo "[5/7] Skipping editable install (no setup.py/pyproject); using PYTHONPATH at runtime..."
 
 echo "[6/7] Downloading weights..."
 HF_TOKEN="$HF_TOKEN" python download.py
