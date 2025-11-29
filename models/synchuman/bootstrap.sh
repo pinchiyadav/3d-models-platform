@@ -25,16 +25,14 @@ if [[ -d "/workspace/micromamba" ]]; then
 else
   source venv/bin/activate
 fi
-if [[ ! -f "$SYNC_ROOT/api_server.py" ]]; then
-  cp "$SCRIPT_DIR/api_server.py" "$SYNC_ROOT/api_server.py"
-fi
+cp "$SCRIPT_DIR/api_server.py" "$SYNC_ROOT/api_server.py"
 export PYTHONPATH="$SYNC_ROOT"
 export ATTN_BACKEND=flash_attn SPARSE_ATTN_BACKEND=flash_attn
 nohup python api_server.py > /workspace/sync_api.log 2>&1 &
 echo "API started (log: /workspace/sync_api.log)."
 
 # Health check
-sleep 3
+sleep 10
 if curl -fsS http://localhost:8000/health >/dev/null; then
   echo "Health check: ok"
 else
