@@ -26,10 +26,11 @@ fi
 USE_MAMBA="${USE_MAMBA:-true}"
 
 if [[ "${USE_MAMBA}" == "true" ]]; then
-  echo "[2/7] Installing micromamba env (py3.10)..."
+  echo "[2/7] Setting up micromamba env (py3.10)..."
   MICROMAMBA_ROOT="${MICROMAMBA_ROOT:-/workspace/micromamba}"
   export MAMBA_ROOT_PREFIX="${MICROMAMBA_ROOT}"
   if [[ ! -x "${MICROMAMBA_ROOT}/bin/micromamba" ]]; then
+    echo "micromamba not found, installing..."
     mkdir -p "${MICROMAMBA_ROOT}/bin"
     TMP_MAMBA="$(mktemp -d)"
     MAMBA_URL="https://micro.mamba.pm/api/micromamba/linux-64/latest"
@@ -46,12 +47,22 @@ fi
 
 if [[ "${USE_MAMBA}" == "true" ]]; then
   eval "$("${MICROMAMBA_ROOT}/bin/micromamba" shell hook -s bash)"
-  micromamba create -y -n synchuman python=3.10
+  if [[ -d "${MAMBA_ROOT_PREFIX}/envs/synchuman" ]]; then
+    echo "micromamba env 'synchuman' already exists. Activating."
+  else
+    echo "Creating micromamba env 'synchuman'..."
+    micromamba create -y -n synchuman python=3.10
+  fi
   micromamba activate synchuman
 else
-  echo "[2/7] Creating venv..."
-  PYTHON_BIN="${PYTHON:-python3}"
-  "${PYTHON_BIN}" -m venv venv
+  echo "[2/7] Setting up venv..."
+  if [[ -d "venv" ]]; then
+    echo "venv directory already exists. Activating."
+  else
+    echo "Creating venv..."
+    PYTHON_BIN="${PYTHON:-python3}"
+    "${PYTHON_BIN}" -m venv venv
+  fi
   source venv/bin/activate
 fi
 
