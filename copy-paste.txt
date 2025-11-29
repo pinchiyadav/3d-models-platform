@@ -1,0 +1,17 @@
+export MAMBA_ROOT_PREFIX="/workspace/micromamba" && 
+eval "$(/workspace/micromamba/bin/micromamba shell hook -s bash)" && 
+micromamba activate synchuman && 
+python << 'EOF'
+import os
+import sys
+from huggingface_hub import list_repo_files
+print("--- Start of file list ---", file=sys.stderr)
+token = os.environ.get('HF_TOKEN')
+try:
+    files = list_repo_files('xishushu/SyncHuman', repo_type='model', token=token)
+    for f in files:
+        print(f)
+except Exception as e:
+    print(f"An error occurred: {e}", file=sys.stderr)
+print("--- End of file list ---", file=sys.stderr)
+EOF

@@ -119,14 +119,14 @@ echo "[5/7] Skipping editable install (no setup.py/pyproject); using PYTHONPATH 
 echo "[6/7] Downloading weights..."
 # verify required files; if missing, download
 REQUIRED_FILES=(
-  "./ckpts/OneStage/SyncHuman_2D3DCrossSpaceDiffusion/model.safetensors"
+  "./ckpts/OneStage/SyncHuman_2D3DCrossSpaceDiffusion/diffusion_pytorch_model.safetensors"
   "./ckpts/OneStage/image_encoder/model.safetensors"
   "./ckpts/OneStage/text_encoder/model.safetensors"
   "./ckpts/OneStage/vae/diffusion_pytorch_model.safetensors"
   "./ckpts/OneStage/sparse_structure_decoder/model.safetensors"
-  "./ckpts/SecondStage/ckpts/decoder_GS/model.ckpt"
-  "./ckpts/SecondStage/ckpts/decoder_Mesh/model.ckpt"
-  "./ckpts/SecondStage/ckpts/slat_flow/model.ckpt"
+  "./ckpts/SecondStage/ckpts/decoder_GS/model.safetensors"
+  "./ckpts/SecondStage/ckpts/decoder_Mesh/model.safetensors"
+  "./ckpts/SecondStage/ckpts/slat_flow/model.safetensors"
 )
 # remove incomplete ckpts if any required file is missing
 NEED_DL=0

@@ -44,30 +44,14 @@ def main():
     if not token:
         logging.error("HF_TOKEN environment variable not set.")
         sys.exit(1)
-
-    sync_root = os.environ.get("SYNC_ROOT", "/workspace/SyncHuman")
     
     try:
         files_to_download = list_repo_files(repo_id=REPO_ID, repo_type='model', token=token)
+        for f in files_to_download:
+            print(f)
     except Exception as e:
         logging.error(f"Could not list files in repo {REPO_ID}: {e}")
         sys.exit(1)
-        
-    logging.info(f"Found {len(files_to_download)} files to download from {REPO_ID}.")
-
-    # Filter out dotfiles
-    files_to_download = [f for f in files_to_download if not Path(f).name.startswith('.')]
-
-    success = True
-    for filepath in files_to_download:
-        if not download_file_with_retry(REPO_ID, filepath, sync_root, token):
-            success = False
-    
-    if not success:
-        logging.error("One or more files failed to download. Please check the logs.")
-        sys.exit(1)
-        
-    logging.info("All download tasks completed successfully.")
 
 if __name__ == "__main__":
     main()
