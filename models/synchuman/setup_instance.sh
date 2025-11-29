@@ -112,6 +112,7 @@ REQUIRED_FILES=(
   "./ckpts/SecondStage/ckpts/decoder_Mesh/model.ckpt"
   "./ckpts/SecondStage/ckpts/slat_flow/model.ckpt"
 )
+# remove incomplete ckpts if any required file is missing
 NEED_DL=0
 for f in "${REQUIRED_FILES[@]}"; do
   if [[ ! -f "$f" ]]; then
@@ -123,6 +124,8 @@ done
 if [[ "$NEED_DL" -eq 0 ]]; then
   echo "[6/7] ckpts present; skipping download."
 else
+  echo "[6/7] Removing partial ckpts (fresh download)..."
+  rm -rf ./ckpts
   echo "[6/7] Missing ckpts; downloading..."
   rm -rf ./tmp
   export HF_HUB_ENABLE_HF_TRANSFER=1
