@@ -64,7 +64,7 @@ fi
 echo "[3/7] Installing core torch stack (cu121)..."
 pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 \
   --index-url https://download.pytorch.org/whl/cu121 \
-  --retries 15 --timeout 10
+  --retries 15 --timeout 3
 pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
 pip install xformers==0.0.23
 
