@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # One-shot setup for SyncHuman + API on a fresh GPU instance (no Docker).
-# Usage: HF_TOKEN=your_hf_token [SYNC_ROOT=/workspace/SyncHuman] bash models/synchuman/setup_instance.sh
+# Usage: HF_TOKEN=your_hf_token [SYNC_ROOT=/workspace/SyncHuman] [USE_MAMBA=true] bash models/synchuman/setup_instance.sh
 
 if [[ -z "${HF_TOKEN:-}" ]]; then
   echo "HF_TOKEN is required (your Hugging Face token)" >&2
@@ -23,9 +23,25 @@ if command -v apt-get >/dev/null 2>&1; then
     git ffmpeg libgl1 libglib2.0-0 libssl-dev pkg-config python3-dev unzip build-essential libglm-dev
 fi
 
-echo "[2/7] Creating venv..."
-python3 -m venv venv
-source venv/bin/activate
+USE_MAMBA="${USE_MAMBA:-true}"
+
+if [[ "${USE_MAMBA}" == "true" ]]; then
+  echo "[2/7] Installing micromamba env (py3.10)..."
+  MICROMAMBA_ROOT="${MICROMAMBA_ROOT:-/workspace/micromamba}"
+  if [[ ! -x "${MICROMAMBA_ROOT}/bin/micromamba" ]]; then
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C /tmp/ micromamba
+    install -m 755 /tmp/micromamba "${MICROMAMBA_ROOT}/bin/micromamba"
+  fi
+  eval "$("${MICROMAMBA_ROOT}/bin/micromamba" shell hook -s bash)"
+  micromamba create -y -n synchuman python=3.10
+  micromamba activate synchuman
+else
+  echo "[2/7] Creating venv..."
+  PYTHON_BIN="${PYTHON:-python3}"
+  "${PYTHON_BIN}" -m venv venv
+  source venv/bin/activate
+fi
+
 pip install --upgrade pip setuptools wheel packaging ninja psutil "numpy<2"
 if [[ -f "${SYNC_ROOT}/requirements.lock" ]]; then
   echo "[2b] Installing pinned lockfile..."
@@ -34,6 +50,8 @@ fi
 
 echo "[3/7] Installing core torch stack (cu121)..."
 pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
+pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
+pip install xformers==0.0.23
 
 echo "[4/7] Installing SyncHuman + TRELLIS deps..."
 pip install \
@@ -42,8 +60,6 @@ pip install \
   diffusers==0.29.1 \
   transformers==4.36.0 \
   huggingface_hub \
-  xformers==0.0.23 \
-  flash-attn==2.5.8 \
   spconv-cu120 \
   rembg \
   onnxruntime \

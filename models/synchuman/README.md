@@ -39,6 +39,13 @@ Notes
 - TRELLIS install is optional here; enable if their latest requirements are needed by upstream updates.
 
 API option
-- A FastAPI wrapper lives at `api_server.py`; see `API_USAGE.md` for how to run and call `/generate` with optional step overrides.
-- Quick setup on a new GPU (venv): `HF_TOKEN=<your_hf_token> bash models/synchuman/setup_instance.sh` (installs deps, downloads weights, keeps venv in repo). Then `source venv/bin/activate && export ATTN_BACKEND=flash_attn SPARSE_ATTN_BACKEND=flash_attn && python api_server.py`.
-- One-command container: `docker build -t synchuman-api -f models/synchuman/Dockerfile models/synchuman && docker run --gpus all -p 8000:8000 synchuman-api`. The image includes weights, API deps, and starts uvicorn on port 8000 by default.
+- FastAPI wrapper: `api_server.py`; see `API_USAGE.md` for `/generate` usage.
+- Quick setup on a new GPU (mamba by default, venv optional):  
+  ```
+  # ensure python3.10 is available if you disable mamba
+  HF_TOKEN=<your_hf_token> SYNC_ROOT=/workspace/SyncHuman \
+  bash models/synchuman/bootstrap.sh            # installs deps, downloads weights, starts API
+  ```
+  - If you prefer venv: `USE_MAMBA=false PYTHON=python3.10 ... bootstrap.sh`
+  - API log: `/workspace/sync_api.log`; env exports handled inside bootstrap (flash-attn).
+- One-command container: `docker build -t synchuman-api -f models/synchuman/Dockerfile models/synchuman && docker run --gpus all -p 8000:8000 synchuman-api`. Image includes weights and starts uvicorn on port 8000.

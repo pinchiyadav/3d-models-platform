@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # One-command bootstrap: setup env + start API.
-# Usage: HF_TOKEN=your_hf_token bash models/synchuman/bootstrap.sh
+# Usage: HF_TOKEN=your_hf_token [SYNC_ROOT=/workspace/SyncHuman] [USE_MAMBA=true] bash models/synchuman/bootstrap.sh
 
 if [[ -z "${HF_TOKEN:-}" ]]; then
   echo "HF_TOKEN is required (your Hugging Face token)" >&2
@@ -17,7 +17,13 @@ SYNC_ROOT="$SYNC_ROOT" HF_TOKEN="$HF_TOKEN" bash "$SCRIPT_DIR/setup_instance.sh"
 
 # Start API
 cd "$SYNC_ROOT"
-source venv/bin/activate
+# Activate env (mamba or venv)
+if [[ -d "/workspace/micromamba" ]]; then
+  eval "$(/workspace/micromamba/bin/micromamba shell hook -s bash)"
+  micromamba activate synchuman
+else
+  source venv/bin/activate
+fi
 export PYTHONPATH="$SYNC_ROOT"
 export ATTN_BACKEND=flash_attn SPARSE_ATTN_BACKEND=flash_attn
 nohup python api_server.py > /workspace/sync_api.log 2>&1 &
