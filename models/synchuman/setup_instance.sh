@@ -126,6 +126,7 @@ else
   echo "[6/7] Missing ckpts; downloading..."
   rm -rf ./tmp
   export HF_HUB_ENABLE_HF_TRANSFER=1
+  pip install -q hf_transfer || true
   for i in 1 2 3; do
     HF_TOKEN="$HF_TOKEN" python download.py && break
     echo "Download attempt $i failed; retrying..." >&2
