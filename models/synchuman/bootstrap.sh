@@ -19,6 +19,7 @@ SYNC_ROOT="$SYNC_ROOT" HF_TOKEN="$HF_TOKEN" bash "$SCRIPT_DIR/setup_instance.sh"
 cd "$SYNC_ROOT"
 # Activate env (mamba or venv)
 if [[ -d "/workspace/micromamba" ]]; then
+  export MAMBA_ROOT_PREFIX="${MAMBA_ROOT_PREFIX:-/workspace/micromamba}"
   eval "$(/workspace/micromamba/bin/micromamba shell hook -s bash)"
   micromamba activate synchuman
 else

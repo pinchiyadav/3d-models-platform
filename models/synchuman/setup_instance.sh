@@ -101,13 +101,38 @@ pip install --no-build-isolation ./GaussianRenderer/diff-gaussian-rasterization
 echo "[5/7] Skipping editable install (no setup.py/pyproject); using PYTHONPATH at runtime..."
 
 echo "[6/7] Downloading weights..."
-# Prefer hf_transfer for faster, resumable downloads; retry a few times
-export HF_HUB_ENABLE_HF_TRANSFER=1
-for i in 1 2 3; do
-  HF_TOKEN="$HF_TOKEN" python download.py && break
-  echo "Download attempt $i failed; retrying..." >&2
-  sleep 5
+# verify required files; if missing, download
+REQUIRED_FILES=(
+  "./ckpts/OneStage/SyncHuman_2D3DCrossSpaceDiffusion/model.safetensors"
+  "./ckpts/OneStage/image_encoder/model.safetensors"
+  "./ckpts/OneStage/text_encoder/model.safetensors"
+  "./ckpts/OneStage/vae/diffusion_pytorch_model.safetensors"
+  "./ckpts/OneStage/sparse_structure_decoder/model.safetensors"
+  "./ckpts/SecondStage/ckpts/decoder_GS/model.ckpt"
+  "./ckpts/SecondStage/ckpts/decoder_Mesh/model.ckpt"
+  "./ckpts/SecondStage/ckpts/slat_flow/model.ckpt"
+)
+NEED_DL=0
+for f in "${REQUIRED_FILES[@]}"; do
+  if [[ ! -f "$f" ]]; then
+    NEED_DL=1
+    break
+  fi
 done
+
+if [[ "$NEED_DL" -eq 0 ]]; then
+  echo "[6/7] ckpts present; skipping download."
+else
+  echo "[6/7] Missing ckpts; downloading..."
+  rm -rf ./tmp
+  export HF_HUB_ENABLE_HF_TRANSFER=1
+  for i in 1 2 3; do
+    HF_TOKEN="$HF_TOKEN" python download.py && break
+    echo "Download attempt $i failed; retrying..." >&2
+    rm -rf ./tmp
+    sleep 5
+  done
+fi
 
 echo "[7/7] Ready. Run API with:"
 echo "  source venv/bin/activate"
