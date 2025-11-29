@@ -105,7 +105,19 @@ pip install \
   fastapi uvicorn python-multipart
 pip install git+https://github.com/NVlabs/nvdiffrast.git@v0.3.1 --no-build-isolation
 pip install git+https://github.com/EasternJournalist/utils3d@9a4eb15e
-pip install --no-build-isolation --no-cache-dir git+https://github.com/NVIDIAGameWorks/kaolin.git@v0.17.0
+for i in {1..5}; do
+  if pip install --no-build-isolation --no-cache-dir git+https://github.com/NVIDIAGameWorks/kaolin.git@v0.17.0; then
+    echo "kaolin installed successfully on attempt $i."
+    break
+  else
+    echo "kaolin installation failed on attempt $i. Retrying in 10 seconds..." >&2
+    sleep 10
+  fi
+done
+if ! pip show kaolin >/dev/null 2>&1; then
+  echo "ERROR: kaolin failed to install after multiple attempts. Exiting." >&2
+  exit 1
+fi
 git submodule update --init --recursive
 # Ensure rasterizer source is present
 if [[ ! -d "./GaussianRenderer/diff-gaussian-rasterization" ]]; then
