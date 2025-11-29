@@ -29,9 +29,21 @@ if [[ "${USE_MAMBA}" == "true" ]]; then
   echo "[2/7] Installing micromamba env (py3.10)..."
   MICROMAMBA_ROOT="${MICROMAMBA_ROOT:-/workspace/micromamba}"
   if [[ ! -x "${MICROMAMBA_ROOT}/bin/micromamba" ]]; then
-    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C /tmp/ micromamba
-    install -m 755 /tmp/micromamba "${MICROMAMBA_ROOT}/bin/micromamba"
+    mkdir -p "${MICROMAMBA_ROOT}/bin"
+    TMP_MAMBA="$(mktemp -d)"
+    MAMBA_URL="https://micro.mamba.pm/api/micromamba/linux-64/latest"
+    if curl -fLs "${MAMBA_URL}" -o "${TMP_MAMBA}/micromamba.tar.bz2"; then
+      tar -xvjf "${TMP_MAMBA}/micromamba.tar.bz2" -C "${TMP_MAMBA}" "bin/micromamba"
+      install -m 755 "${TMP_MAMBA}/bin/micromamba" "${MICROMAMBA_ROOT}/bin/micromamba"
+    else
+      echo "micromamba download failed; falling back to venv." >&2
+      USE_MAMBA="false"
+    fi
+    rm -rf "${TMP_MAMBA}"
   fi
+fi
+
+if [[ "${USE_MAMBA}" == "true" ]]; then
   eval "$("${MICROMAMBA_ROOT}/bin/micromamba" shell hook -s bash)"
   micromamba create -y -n synchuman python=3.10
   micromamba activate synchuman
