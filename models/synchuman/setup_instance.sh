@@ -127,9 +127,10 @@ else
   rm -rf ./tmp
   export HF_HUB_ENABLE_HF_TRANSFER=1
   pip install -q hf_transfer || true
-  for i in 1 2 3; do
+  # retry/resume up to 5 times
+  for i in 1 2 3 4 5; do
     HF_TOKEN="$HF_TOKEN" python download.py && break
-    echo "Download attempt $i failed; retrying..." >&2
+    echo "Download attempt $i failed; retrying in 5s..." >&2
     rm -rf ./tmp
     sleep 5
   done
