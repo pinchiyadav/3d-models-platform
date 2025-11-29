@@ -54,7 +54,7 @@ networkx==3.3
 numpy==1.26.4
 onnxruntime==1.23.2
 open3d==0.17.0
-opencv-python==4.12.0.88
+opencv-python==4.5.5.64
 packaging==25.0
 pandas==2.3.3
 parso==0.8.3

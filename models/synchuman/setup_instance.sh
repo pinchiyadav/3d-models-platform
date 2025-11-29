@@ -94,7 +94,7 @@ pip install \
   rembg \
   onnxruntime \
   imageio[ffmpeg] \
-  opencv-python \
+  opencv-python==4.5.5.64 \
   trimesh \
   easydict \
   xatlas \

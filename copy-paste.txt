@@ -1,1 +1,9 @@
+# Set HF_TOKEN and run bootstrap
+export HF_TOKEN="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"
 bash models/synchuman/bootstrap.sh
+
+# Run curl command
+curl -X POST "http://localhost:8000/generate" -F "image_url=https://www.pngfind.com/pngs/b/41-416466_dussehra-png.png" -F "download=true"
+
+# Get the latest log
+cat /workspace/sync_api.log
