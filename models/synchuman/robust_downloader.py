@@ -7,7 +7,7 @@ import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-REPO_ID = "IGL-HKUST/SyncHuman"
+REPO_ID = "xishushu/SyncHuman"
 
 def download_file_with_retry(repo_id, filepath, local_dir, token, retries=5):
     """Downloads a single file with retries."""
