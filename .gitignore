@@ -13,3 +13,4 @@ models/synchuman/ckpts/
 *.pt
 *.pth
 *.safetensors
+copy-paste.txt
